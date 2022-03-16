@@ -1,0 +1,100 @@
+---
+title: "Capstone Working Document NEW"
+author: "Patrick Cannon"
+date: "3/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# open the haven package to read an xpt
+library(tidyverse)
+library(package = "haven")
+```
+
+```{r}
+
+# create a temporary file to store the zipped file
+# before you open it
+temp <- tempfile(fileext = ".zip")
+# use download.file to put the zipped file in the temp file
+# this will take a couple of minutes depending on computer speed
+download.file(url = "http://www.cdc.gov/brfss/annual_data/2019/files/LLCP2019XPT.zip",
+              destfile = temp)
+# unzip it and read it
+brfss.2019 <- read_xpt(file = temp)
+```
+
+```{r}
+# Memory loss - outcome
+brfss.2019$CIMEMLOS
+
+# physical activity
+brfss.2019$EXERANY2
+
+# deaf or hearing loss
+brfss.2019$DEAF
+
+# age
+brfss.2019$`_AGE_G`
+
+# gender
+brfss.2019$`_SEX`
+
+# race
+brfss.2019$`_RACEGR3`
+
+# alternate race var
+brfss.2019$`_RACEG21`
+
+
+```
+
+```{r}
+brfss.2019.cleaned <- brfss.2019 %>%
+  select(CIMEMLOS, EXERANY2, DEAF, `_AGE_G`, `_SEX`, `_RACEGR3`) %>%
+  mutate(CIMEMLOS = recode_factor(CIMEMLOS, 
+                                  "1" = "Yes", 
+                                  "2" = "No",
+                                  "7" = NA_character_,
+                                  "9" = NA_character_)) %>%
+  mutate(EXERANY2 = recode_factor(EXERANY2,
+                                  "1" = "Yes", 
+                                  "2" = "No",
+                                  "7" = NA_character_,
+                                  "9" = NA_character_)) %>%
+  mutate(DEAF = recode_factor(DEAF,
+                                  "1" = "Yes", 
+                                  "2" = "No",
+                                  "7" = NA_character_,
+                                  "9" = NA_character_)) %>%
+  mutate(`_AGE_G` = recode_factor(`_AGE_G`,
+                                  "1" = "18-24", 
+                                  "2" = "25-34",
+                                  "3" = "35-44",
+                                  "4" = "45-54",
+                                  "5" = "55-64",
+                                  "6" = "65 plus")) %>%
+  mutate(`_SEX` = recode_factor(`_SEX`,
+                                  "1" = "Male", 
+                                  "2" = "Female")) %>%
+  mutate(`_RACEGR3` = recode_factor(`_RACEGR3`,
+                                  "1" = "White, Non-Hispanic", 
+                                  "2" = "Black, Non-Hispanic",
+                                  "3" = "Other Race, Non-Hispanic",
+                                  "4" = "Multiracial, Non-Hispanic",
+                                  "5" = "Hispanic",
+                                  "9" = NA_character_))
+```
+
+```{r}
+summary(brfss.2019.cleaned)
+```
+
+```{r}
+
+```
+
